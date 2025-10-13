@@ -7,7 +7,7 @@
 #chmod +x run_rmap_clients.sh
 #./run_rmap_clients.sh
 
-rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_04.asc --server 127.0.0.1
+#rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_04.asc --server 127.0.0.1
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_04.asc --server 10.11.202.17
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_05.asc --server 10.11.202.15
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_06.asc --server 10.11.202.9
