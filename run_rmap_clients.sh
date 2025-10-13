@@ -1,49 +1,30 @@
-python -m pip install rmap@git+https://github.com/nharrand/RMAP-Server.git@v2.0.0
+#python -m pip install rmap@git+https://github.com/nharrand/RMAP-Server.git@v2.0.0
 
-rmap-client --client-priv path/to/your/private/key.asc --identity Group_X --server-pub path/to/the/server/public/key.asc --server SERVER_IP
+#rmap-client --client-priv path/to/your/private/key.asc --identity Group_X --server-pub path/to/the/server/public/key.asc --server SERVER_IP
+#!/bin/bash
+
+# Script to run rmap-client commands one by one
 
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_04.asc --server 127.0.0.1
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_04.asc --server 10.11.202.17
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_05.asc --server 10.11.202.15
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_06.asc --server 10.11.202.9
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_10.asc --server 10.11.202.5
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_11.asc --server 10.11.202.3
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_13.asc --server 10.11.202.7
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_15.asc --server 10.11.202.6
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_16.asc --server 10.11.202.16
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_17.asc --server 10.11.202.13
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_18.asc --server 10.11.202.14
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_21.asc --server 10.11.202.10
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_23.asc --server 10.11.202.11
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_03.asc --server 10.11.12.13
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_07.asc --server 10.11.12.14
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_08.asc --server 10.11.12.7
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_09.asc --server 10.11.12.10
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_14.asc --server 10.11.12.18
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_19.asc --server 10.11.12.17
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_20.asc --server 10.11.12.9
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_22.asc --server 10.11.12.8
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_24.asc --server 10.11.12.15
-
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_26.asc --server 10.11.12.12
