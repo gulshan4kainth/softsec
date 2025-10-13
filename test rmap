@@ -1,1 +1,5 @@
+python -m pip install rmap@git+https://github.com/nharrand/RMAP-Server.git@v2.0.0
+
+rmap-client --client-priv path/to/your/private/key.asc --identity Group_X --server-pub path/to/the/server/public/key.asc --server SERVER_IP
+
 rmap-client --client-priv priv_final_unprotected.asc --identity Group_04 --server-pub Group_04.asc --server 127.0.0.1
