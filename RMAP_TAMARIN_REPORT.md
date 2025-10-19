@@ -106,5 +106,27 @@ Tips for reading traces and proofs:
 - Check state facts (e.g., CState1, SState) to ensure the modeled state transitions match your protocol intent; mismodeling often causes false attacks.
 - If a lemma fails because of a key compromise you did not intend to model, add a `Reveal(sk(id))` only in targeted experiments, not in the base model.
 
-
 ## 11. Conclusion (Fill After Running)
+
+Summary of findings from `tamarin-prover interactive RMAP.spthy:
+- The interactive UI started successfully and served at http://127.0.0.1:3001.
+- The theory translated and derivation checks completed; raw and refined sources indicate multiple proof cases (19 cases, 14 partial deconstructions left).
+Per-lemma bounded-autoprove outcomes (proof-depth bound = 5). 
+- client_auth — PROVEN (bounded autoprove succeeded).
+  - Overview HTML: client_auth_trace3_overview.html
+  - Graph PNG: client_auth_trace3_graph.png
+- server_auth — UNPROVEN (bounded autoprove created trace with bound hits; see HTML/graph).
+  - Overview HTML: server_auth_trace4_overview.html
+  - Graph PNG: server_auth_trace4_graph.png
+- injective_client_auth — PROVEN (contradiction closed the goal in the created trace).
+  - Overview HTML: exists_trace5_overview.html
+  - Graph PNG: injective_trace5_graph.png
+- exists_run — UNPROVEN (bounded autoprove trace hit bound 5; partial progress visible in trace 6).
+  - Overview HTML: exists_trace6_overview.html
+  - Graph PNG: exists_trace6_graph.png
+- secrecy_link — UNPROVEN (previous bounded autoprove run created trace 6 and hit bound 5; see /tmp for saved artifacts if needed).
+
+Notes:
+- Some autoprove attempts closed lemmas automatically (client_auth, injective_client_auth). Others hit the proof-depth bound and remain with `sorry` steps (server_auth, exists_run, secrecy_link).
+- No attacker trace (counterexample) was observed in these bounded autoprove runs. If you want counterexamples, run the autoprove without a depth bound (unbounded) or increase the search resources.
+I ran the bounded autoprove sequence and saved the HTML + graph artifacts under
