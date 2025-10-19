@@ -108,31 +108,55 @@ Tips for reading traces and proofs:
 
 
 ## 11. Conclusion (Fill After Running)
-After running the prover on this model, record the concrete outcomes and any immediate follow-ups. Below is a template you can edit with the actual results produced by `tamarin-prover`.
+After running the prover (interactive UI) on this model I captured the prover output and UI state. Below are the concrete findings, diagnostics, and recommended next steps.
 
-- Date run: YYYY-MM-DD
-- Tamarin version: <insert version reported by the tool>
-- Command used: `tamarin-prover --prove rmap.spthy` (or `tamarin-prover interactive rmap.spthy` for the UI)
+- Date run: 2025-10-19
+- Tamarin version: 1.10.0
+- Command used: `tamarin-prover interactive /workspaces/codespaces-blank/RMAP.spthy`
 
-Summary of results (example template):
+Observations from the interactive UI (captured from the server pages):
 
-- secrecy_link: Proven (✔) — No trace found where the attacker derives `link` under the current model (no key compromise rules). The proof used invariants X and Y.
-- client_auth: Proven (✔) — Client completion implies a prior `ServerReply` event; proof closed automatically.
-- server_auth: Proven (✔) — Server issuance implies a matching client start and client receipt of server nonce.
-- injective_client_auth: Proven (✔) — Server replies are unique per completed client session.
+- Theory loaded and translated successfully. "Derivation checks started" / "Derivation checks ended" were reported.
+- The UI lists the Message theory, 11 multiset-rewriting rules, and proof script placeholders.
+- Raw sources: 19 cases (14 partial deconstructions left). Refined sources: 19 cases (14 partial deconstructions left).
+- The proof script shows every lemma currently contains a `sorry` proof step (i.e., unproven placeholders). Specifically:
+  - `secrecy_link` — proof step(s): `induction` with `sorry` in both `empty_trace` and `non_empty_trace` cases. Status: not yet proven (requires proof effort / autoprove).
+  - `client_auth` — `by sorry`. Status: not yet proven.
+  - `server_auth` — `induction` with `sorry` cases. Status: not yet proven.
+  - `injective_client_auth` — `by sorry`. Status: not yet proven.
+  - `exists_run` — `by sorry` (existential run claimed but not produced automatically).
 
-If any lemma failed (✘), include:
+Interpretation / immediate conclusion:
 
-- Failed lemma: <name>
-- Trace summary: brief description of the attack (e.g., "Attacker replays M2 with stale ns; server issues same link twice" or "K(link) obtained after adding Reveal(skC)").
-- Root cause hypothesis: (e.g., missing freshness assumption, omitted nonce binding, unintended key leak in rules).
-- Suggested fix: (e.g., add explicit state checks, strengthen nonce binding in rules, restrict Reveal rules to experiments).
+- No lemmas were automatically proven by the interactive session as-is: each lemma still contains `sorry` proof steps. The prover did not report any explicit counterexample traces (no lemma displayed as a concrete attack trace in the UI output captured), nor did the batch prover finish a full proof run in CLI mode here.
+- The presence of many partial deconstructions (14) suggests the proof obligations produce multiple case splits that need either manual guidance, helper lemmas, or more aggressive autoprove resources.
 
-Next steps and notes:
+Recommended next steps (practical):
 
-- If all lemmas are proven, consider modeling key compromise scenarios (targeted `Reveal` rules) and re-running to enumerate attacks.
-- If a lemma fails and the trace is valid, fix the model or document the vulnerability and the expected real-world mitigation.
-- Attach screenshots or the interactive trace export when filing the final report or a bug ticket.
+1. Try the UI autoprove: open the interactive UI at http://127.0.0.1:3001, focus a lemma, and press `s` (or use the Actions menu) to run the autoprover for that lemma; `S` will search for all solutions. Autoprove can often close `sorry` steps automatically for standard protocol lemmas.
 
----
-Edit the items above with your actual run outputs to finalize this section.
+2. If autoprove times out or stalls, run batch proving with resource adjustments. Example CLI runs you can try:
+
+```bash
+# short timeout (seconds)
+tamarin-prover --prove /workspaces/codespaces-blank/RMAP.spthy --timeout 120
+
+# increase search (may use more CPU/time)
+tamarin-prover --prove /workspaces/codespaces-blank/RMAP.spthy --search "depth=10"
+```
+
+3. Add small helper lemmas / invariants or rearrange tactics in the proof script to reduce case splitting. Inspect the `sorry` steps in the UI (click the `sorry` link) to see the open constraints and the raw/refined sources feeding them.
+
+4. If you want to test key compromise scenarios explicitly, add a targeted `Reveal(sk(id))` rule and re-run the prover to see which lemmas (notably `secrecy_link`) fail with concrete attack traces.
+
+5. When a lemma fails (counterexample produced), click the trace in the UI to export or screenshot it; include the trace graph and brief root-cause notes in this document.
+
+Summary table (current statuses):
+
+ - secrecy_link: UNPROVEN (contains `sorry` proof steps in both induction cases)
+ - client_auth: UNPROVEN (`sorry`)
+ - server_auth: UNPROVEN (induction with `sorry` cases)
+ - injective_client_auth: UNPROVEN (`sorry`)
+ - exists_run: UNPROVEN (`sorry`)
+
+Final note: the interactive UI is reachable locally at http://127.0.0.1:3001 in this environment (the server is running and serving the theory). Use the UI autoprove or the CLI prove with adjusted resources to try to close the `sorry` steps; if you want, I can (a) run autoprove programmatically for each lemma and capture results, or (b) run an extended batch prove with a timeout and then update this section again with the exact final proof/attack outcomes. Which would you like me to do next?
