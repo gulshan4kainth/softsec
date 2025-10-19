@@ -95,12 +95,44 @@ The command prints a local URL (often <http://127.0.0.1:3001>). Open it in a bro
 
 ## 10. Reading Results
 
-- Green (✔) lemma: Proven.
-- Red (✘) lemma: Attack found – click to view trace graph (sequence of rule applications). Analyze which rule grants the attacker knowledge or mismatched events.
-- Yellow / Pending: Requires manual guidance or additional lemmas/heuristics.
+- Green (✔) lemma: Proven. The automated prover found a proof (no reachable attack trace). Typically the proof will be accompanied by a sequence of applied rules and any auxiliary lemmas used; you can expand these in the UI to inspect the proof skeleton.
+- Red (✘) lemma: Attack found. Tamarin produced a counterexample trace demonstrating how the adversary can violate the lemma. Open the trace graph to see the sequence of rule applications, the messages sent on the network, and the attacker knowledge facts. Use the trace to identify which rule or missing assumption (for example, a missing key compromise or a replay protection rule) enables the attack.
+- Yellow / Pending (or Unknown): The prover couldn't automatically prove or find an attack within its heuristics or time limits. This often requires manual guidance: add helper lemmas, strengthen or weaken the claim, supply invariants, or interactively guide the proof in the UI.
+
+Tips for reading traces and proofs:
+
+- Start from the final event in the trace (the point where the lemma is violated) and step backwards to see which rule produced the critical fact (e.g., K(link) or a mismatched event ordering).
+- Look for any "Attacker" facts (K(...), Out(...)) appearing before the supposed secret is created; these indicate leakage paths.
+- Check state facts (e.g., CState1, SState) to ensure the modeled state transitions match your protocol intent; mismodeling often causes false attacks.
+- If a lemma fails because of a key compromise you did not intend to model, add a `Reveal(sk(id))` only in targeted experiments, not in the base model.
+
 
 ## 11. Conclusion (Fill After Running)
-After running, summarize actual outcomes here (e.g., “All lemmas proven under current model” or “Attack on secrecy after adding compromise rule”). Attach screenshots from the interactive UI if desired.
+After running the prover on this model, record the concrete outcomes and any immediate follow-ups. Below is a template you can edit with the actual results produced by `tamarin-prover`.
+
+- Date run: YYYY-MM-DD
+- Tamarin version: <insert version reported by the tool>
+- Command used: `tamarin-prover --prove rmap.spthy` (or `tamarin-prover interactive rmap.spthy` for the UI)
+
+Summary of results (example template):
+
+- secrecy_link: Proven (✔) — No trace found where the attacker derives `link` under the current model (no key compromise rules). The proof used invariants X and Y.
+- client_auth: Proven (✔) — Client completion implies a prior `ServerReply` event; proof closed automatically.
+- server_auth: Proven (✔) — Server issuance implies a matching client start and client receipt of server nonce.
+- injective_client_auth: Proven (✔) — Server replies are unique per completed client session.
+
+If any lemma failed (✘), include:
+
+- Failed lemma: <name>
+- Trace summary: brief description of the attack (e.g., "Attacker replays M2 with stale ns; server issues same link twice" or "K(link) obtained after adding Reveal(skC)").
+- Root cause hypothesis: (e.g., missing freshness assumption, omitted nonce binding, unintended key leak in rules).
+- Suggested fix: (e.g., add explicit state checks, strengthen nonce binding in rules, restrict Reveal rules to experiments).
+
+Next steps and notes:
+
+- If all lemmas are proven, consider modeling key compromise scenarios (targeted `Reveal` rules) and re-running to enumerate attacks.
+- If a lemma fails and the trace is valid, fix the model or document the vulnerability and the expected real-world mitigation.
+- Attach screenshots or the interactive trace export when filing the final report or a bug ticket.
 
 ---
-Fill Section 11 after executing the prover to finalize submission.
+Edit the items above with your actual run outputs to finalize this section.
