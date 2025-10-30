@@ -1,6 +1,19 @@
 # RMAP Protocol – Tamarin Formal Analysis
 
-This document summarizes the concrete results from running the Tamarin prover on the theory `RMAP_TAMARIN.spthy`, together with quick interpretation and next steps. It follows the structure and modeling choices from `RMAP_TAMARIN_REPORT.md` (same protocol model and lemmas).
+## Protocol (Abstract Messages)
+
+The abstract protocol messages modeled in `RMAP_TAMARIN.spthy` are:
+
+1. M1: C→S: aenc( Pair(id, nc), pk(skS) )
+2. M2: S→C: aenc( Pair(nc, ns), pk(sk(id)) )
+3. M3: C→S: aenc( ns, pk(skS) )
+4. Server issues secret: Secret(id,nc,ns)
+
+These messages and the associated state facts produce the `Secret(...)` fact recorded by the server when the issuance completes.
+
+(See `RMAP_TAMARIN.spthy` for exact formal statements.)
+
+This document summarizes the concrete results from running the Tamarin prover on the theory `RMAP_TAMARIN.spthy`, together with quick interpretation and next steps.
 
 ## 1. Quick summary
 
@@ -23,54 +36,18 @@ dot tamarin-output/traces.dot -Tpng -o tamarin-output/traces.png
   - `injective_agreement` — falsified (counterexample found)
   - `session_key_setup_possible` — verified
 
-Artifacts created are placed in `tamarin-output/` (see Section 7).
+Artifacts created are placed in `tamarin-output/`.
 
 ## 2. Modeling & protocol (brief)
 
-- The model follows the design in `RMAP_TAMARIN_REPORT.md`. In short:
-  - Public-key crypto modeled as perfect Dolev–Yao `aenc/adec`.
-  - Fresh nonces `ni` (client) and `nr` (server). Secret link is modeled as an allocated `link` term and recorded via `Secret` facts.
-  - Protocol rules implement: client initial message (I_1), server response (R_1), client check & secret derivation (I_2..I_3), server finalization issuing `Secret` (R_2).
+- Public-key crypto modeled `aenc/adec`.
+- Fresh nonces `ni` (client) and `nr` (server). Secret link is modeled as an allocated `link` term and recorded via `Secret` facts.
+- Protocol rules implement: client initial message (I_1), server response (R_1), client check & secret derivation (I_2..I_3), server finalization issuing `Secret` (R_2).
 
 If you want the full theory, open `RMAP_TAMARIN.spthy` in the repository.
 
-## Modeling Choices
 
-| Aspect | Real System | Tamarin Abstraction |
-| ------ | ----------- | ------------------- |
-| Crypto | OpenPGP asymmetric encryption | Dolev–Yao perfect public‑key encryption `aenc/adec` |
-| Identities | File‑based public keys per group/client | Dynamically generated identities with `PublishClientIdentity` |
-| Nonces | 64‑bit randoms (client & server) | `Fr(nc)`, `Fr(ns)` fresh terms |
-| Secret Link | 128‑bit hex | Term `Secret(id,nc,ns)` |
-| Sessions | In‑memory RMAP state | State facts `PendingClient`, `PendingServer` |
-| Adversary | Network control, cannot forge signatures/decrypt without keys | Standard Dolev–Yao attacker with public channel (Out/In) |
-| Key Compromise | Not yet modeled | Future rule could leak `sk(id)` |
-
-
-## 3. Lemma definitions (reference)
-
-## Protocol (Abstract Messages)
-
-The abstract protocol messages modeled in `RMAP_TAMARIN.spthy` are:
-
-1. M1: C→S: aenc( Pair(id, nc), pk(skS) )
-2. M2: S→C: aenc( Pair(nc, ns), pk(sk(id)) )
-3. M3: C→S: aenc( ns, pk(skS) )
-4. Server issues secret: Secret(id,nc,ns)
-
-These messages and the associated state facts produce the `Secret(...)` fact recorded by the server when the issuance completes.
-
-
-The main lemmas in the theory are (informal names):
-
-- secrecy_link: Server issues `Secret(...)` → adversary does not know that secret.
-- client_auth: Client completion implies a prior ServerReply.
-- server_auth: Server issue implies a prior honest ClientStart and receipt of nonceS.
-- injective_client_auth: There are not two different ServerReply events matching the same client completion (injective agreement).
-
-(See `RMAP_TAMARIN.spthy` for exact formal statements.)
-
-## 4. What the prover found
+## 3. What the prover found
 
 - types: verified — no type/shape issues in traces.
 
@@ -94,7 +71,7 @@ analyzed: /workspaces/codespaces-blank/RMAP_TAMARIN.spthy
   session_key_setup_possible (exists-trace): verified
 ```
 
-## 5. Where to see the counterexample traces
+## 4. Where to see the counterexample traces
 
 The prover export and rendered graph are available under `tamarin-output/` in the repo root (created by the run above):
 
@@ -105,7 +82,7 @@ The prover export and rendered graph are available under `tamarin-output/` in th
 
 To inspect the fail trace in human-readable form, you can open `traces.json` and search for the guard-formula or the lemma name (e.g. `nonce_secrecy`) to find the matching satisfying trace.
 
-## 6. Quick interpretation & likely root causes
+## 5. Quick interpretation & likely root causes
 
 - nonce_secrecy falsified:
   - The run indicates there is a path in the model that exposes the `link` term to the adversary. Common root causes in models similar to RMAP are:
@@ -117,7 +94,7 @@ To inspect the fail trace in human-readable form, you can open `traces.json` and
   - Often caused by insufficient linking between session identifiers and event facts or by not preventing replayed/duplicated server replies.
   - Fix approach: strengthen state facts or add uniqueness conditions (e.g., record `UsedNonce` facts and require they are consumed) or ensure `Commit` facts carry a unique session identifier that prevents two different `ServerReply` events from matching the same completion.
 
-## 7. Reproduction steps (exact)
+## 6. Reproduction steps (exact)
 
 Run from the repository root:
 
@@ -137,7 +114,7 @@ tamarin-prover interactive RMAP_TAMARIN.spthy
 # then open the URL printed by the prover in a browser
 ```
 
-## 8. Artifacts added by the run
+## 7. Artifacts added by the run
 
 (Located at repo root in `tamarin-output/`)
 
