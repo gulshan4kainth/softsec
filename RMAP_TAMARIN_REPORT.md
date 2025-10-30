@@ -61,7 +61,7 @@ Summary from the prover run (printed at end of tool output):
 ```
 summary of summaries:
 
-analyzed: /workspaces/codespaces-blank/RMAP_TAMARIN.spthy
+analyzed: RMAP_TAMARIN.spthy
 
   processing time: ~4s
 
