@@ -31,10 +31,10 @@ dot tamarin-output/traces.dot -Tpng -o tamarin-output/traces.png
 ```
 
 - High-level results (Tamarin 1.10.0):
-  - `types` — verified
-  - `nonce_secrecy` — falsified (attack found)
-  - `injective_agreement` — falsified (counterexample found)
-  - `session_key_setup_possible` — verified
+  - `types` - verified
+  - `nonce_secrecy` - falsified (attack found)
+  - `injective_agreement` - falsified (counterexample found)
+  - `session_key_setup_possible` - verified
 
 Artifacts created are placed in `tamarin-output/`.
 
@@ -49,13 +49,13 @@ If you want the full theory, open `RMAP_TAMARIN.spthy` in the repository.
 
 ## 3. What the prover found
 
-- types: verified — no type/shape issues in traces.
+- types: verified - no type/shape issues in traces.
 
-- nonce_secrecy: falsified — Tamarin found at least one trace where a `Secret(...)` fact exists and the adversary (`K(...)`) also knows the secret value. The run's internal logs show an explicit satisfying trace pattern like `Secret(A, B, s) @ #i` together with `K(s) @ #j` and no `RevLtk` events, meaning the leak occurs under the current rules without any explicit long-term key revelation steps.
+- nonce_secrecy: falsified - Tamarin found at least one trace where a `Secret(...)` fact exists and the adversary (`K(...)`) also knows the secret value. The run's internal logs show an explicit satisfying trace pattern like `Secret(A, B, s) @ #i` together with `K(s) @ #j` and no `RevLtk` events, meaning the leak occurs under the current rules without any explicit long-term key revelation steps.
 
-- injective_agreement: falsified — Tamarin produced a counterexample trace showing that the same `Commit`/`ClientComplete` can be matched with multiple `ServerReply` events (non‑injective matching). The trace demonstrates an ordering of events that invalidates injectivity under current modeling.
+- injective_agreement: falsified - Tamarin produced a counterexample trace showing that the same `Commit`/`ClientComplete` can be matched with multiple `ServerReply` events (non‑injective matching). The trace demonstrates an ordering of events that invalidates injectivity under current modeling.
 
-- session_key_setup_possible: verified — a run exists showing a successful session and secret setup (i.e., the normal happy path is reachable).
+- session_key_setup_possible: verified - a run exists showing a successful session and secret setup (i.e., the normal happy path is reachable).
 
 Summary from the prover run (printed at end of tool output):
 ```
@@ -75,10 +75,10 @@ analyzed: /workspaces/codespaces-blank/RMAP_TAMARIN.spthy
 
 The prover export and rendered graph are available under `tamarin-output/` in the repo root (created by the run above):
 
-- `tamarin-output/traces.json` — serialized traces and counterexample details (JSON). This contains the concrete trace steps, including rule names and event facts; you can extract a human-readable trace from it.
-- `tamarin-output/traces.dot` — Graphviz dot export representing traces/graphs.
-- `tamarin-output/traces.png` — PNG rendering of the dot export for quick visual inspection.
-- `tamarin-output/index.html` — quick HTML summary page (if present) embedding `traces.png` and linking the raw artifacts.
+- `tamarin-output/traces.json` - serialized traces and counterexample details (JSON). This contains the concrete trace steps, including rule names and event facts; you can extract a human-readable trace from it.
+- `tamarin-output/traces.dot` - Graphviz dot export representing traces/graphs.
+- `tamarin-output/traces.png` - PNG rendering of the dot export for quick visual inspection.
+- `tamarin-output/index.html` - quick HTML summary page (if present) embedding `traces.png` and linking the raw artifacts.
 
 To inspect the fail trace in human-readable form, you can open `traces.json` and search for the guard-formula or the lemma name (e.g. `nonce_secrecy`) to find the matching satisfying trace.
 
@@ -118,7 +118,7 @@ tamarin-prover interactive RMAP_TAMARIN.spthy
 
 (Located at repo root in `tamarin-output/`)
 
-- `traces.json` — JSON traces
-- `traces.dot` — DOT export
-- `traces.png` — PNG rendering (Graphviz)
-- `index.html` — optional quick summary page
+- `traces.json` - JSON traces
+- `traces.dot` - DOT export
+- `traces.png` - PNG rendering (Graphviz)
+- `index.html` - optional quick summary page
