@@ -1,4 +1,4 @@
-# RMAP Protocol – Tamarin Run Results
+# RMAP Protocol – Tamarin Formal Analysis
 
 This document summarizes the concrete results from running the Tamarin prover on the theory `RMAP_TAMARIN.spthy`, together with quick interpretation and next steps. It follows the structure and modeling choices from `RMAP_TAMARIN_REPORT.md` (same protocol model and lemmas).
 
@@ -34,7 +34,32 @@ Artifacts created are placed in `tamarin-output/` (see Section 7).
 
 If you want the full theory, open `RMAP_TAMARIN.spthy` in the repository.
 
+## Modeling Choices
+
+| Aspect | Real System | Tamarin Abstraction |
+| ------ | ----------- | ------------------- |
+| Crypto | OpenPGP asymmetric encryption | Dolev–Yao perfect public‑key encryption `aenc/adec` |
+| Identities | File‑based public keys per group/client | Dynamically generated identities with `PublishClientIdentity` |
+| Nonces | 64‑bit randoms (client & server) | `Fr(nc)`, `Fr(ns)` fresh terms |
+| Secret Link | 128‑bit hex | Term `Secret(id,nc,ns)` |
+| Sessions | In‑memory RMAP state | State facts `PendingClient`, `PendingServer` |
+| Adversary | Network control, cannot forge signatures/decrypt without keys | Standard Dolev–Yao attacker with public channel (Out/In) |
+| Key Compromise | Not yet modeled | Future rule could leak `sk(id)` |
+
+
 ## 3. Lemma definitions (reference)
+
+## Protocol (Abstract Messages)
+
+The abstract protocol messages modeled in `RMAP_TAMARIN.spthy` are:
+
+1. M1: C→S: aenc( Pair(id, nc), pk(skS) )
+2. M2: S→C: aenc( Pair(nc, ns), pk(sk(id)) )
+3. M3: C→S: aenc( ns, pk(skS) )
+4. Server issues secret: Secret(id,nc,ns)
+
+These messages and the associated state facts produce the `Secret(...)` fact recorded by the server when the issuance completes.
+
 
 The main lemmas in the theory are (informal names):
 
@@ -112,17 +137,7 @@ tamarin-prover interactive RMAP_TAMARIN.spthy
 # then open the URL printed by the prover in a browser
 ```
 
-## 8. Suggested next steps (low-risk)
-
-1. Inspect the `nonce_secrecy` counterexample in `tamarin-output/traces.json` and identify the specific rule or `Out(...)` that lets the adversary learn the secret. If it's a modeling oversight, fix the offending rule (e.g., remove/modify `Out`, or ensure secrets are only transmitted under keys not known to the adversary).
-
-2. For injective agreement, add explicit uniqueness/state facts or additional `Commit` proof obligations that tie replies to a unique session id or to the nonces used in the initiation.
-
-3. Re-run the prover after each small model change and re-check the two failing lemmas. Use the `--output-dot`/`--output-json` flags each time to record the new traces.
-
-4. If you want readable human steps for the counterexample(s), request me to extract the `nonce_secrecy` trace from `tamarin-output/traces.json` and I will produce a step-by-step sequence of rule events and the exact point where `K(s)` becomes true.
-
-## 9. Artifacts added by the run
+## 8. Artifacts added by the run
 
 (Located at repo root in `tamarin-output/`)
 
@@ -130,10 +145,3 @@ tamarin-prover interactive RMAP_TAMARIN.spthy
 - `traces.dot` — DOT export
 - `traces.png` — PNG rendering (Graphviz)
 - `index.html` — optional quick summary page
-
-## 10. Appendix — brief checklist for a follow-up investigation
-
-- [ ] Extract the `nonce_secrecy` counterexample and produce a human-readable sequence of steps (I can do this for you).
-- [ ] Add candidate fixes (prevent Out of secret, add state uniqueness) and test again.
-- [ ] Optionally run the `interactive` mode and produce per-lemma HTML/autoprove pages/screenshots for documentation.
-
