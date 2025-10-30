@@ -88,11 +88,8 @@ To inspect the fail trace in human-readable form, you can open `traces.json` and
   - The run indicates there is a path in the model that exposes the `link` term to the adversary. Common root causes in models similar to RMAP are:
     - Some `Out(...)` message leaks the secret or the secret is encrypted under a key the adversary can learn (for instance, if PK publication or long-term key facts are modeled so the attacker can decrypt or the private key is leaked by other rules).
     - A rule may publish a value (e.g., using `Out`) without sufficient protection, or a derived term (pairing of nonces) may be re-used or exposed.
-  - Next step: inspect the counterexample in `traces.json` to see exactly which rule produced the `Out` leading to `K(s)` and whether the leak comes from the server or client side.
-
 - injective_agreement falsified:
   - Often caused by insufficient linking between session identifiers and event facts or by not preventing replayed/duplicated server replies.
-  - Fix approach: strengthen state facts or add uniqueness conditions (e.g., record `UsedNonce` facts and require they are consumed) or ensure `Commit` facts carry a unique session identifier that prevents two different `ServerReply` events from matching the same completion.
 
 ## 6. Reproduction steps (exact)
 
